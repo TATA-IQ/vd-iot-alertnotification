@@ -11,7 +11,7 @@ os.environ["SHARED_MEMORY_USE_LOCK"]="1"
 
 from src.config_parser import Config
 from src.createclient import CreateClient
-from src.summarization import create_dataframe
+from src.notification_summarization import create_dataframe
 from src.fetch_data import Mongo_Data, Sql_Data
 from src.eventbased_notification import event_alerts
 from src.hourly_notification import hourly_alerts

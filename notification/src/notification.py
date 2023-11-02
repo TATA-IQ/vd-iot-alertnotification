@@ -30,7 +30,7 @@ from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 from src.config_parser import Config
 from src.createclient import CreateClient
-from src.summarization import create_dataframe
+from src.notification_summarization import create_dataframe
 from src.fetch_data import Mongo_Data, Sql_Data
 from src.eventbased_notification import event_alerts
 from src.event_consumer import NotificationConsumer
@@ -74,16 +74,16 @@ def startevent_notification():
 def starthourly_notification():   
     while True:
         current_time = datetime.now()
-        if current_time.second >= 5 and current_time.second <= 10:
-        # if current_time.minute >= 5 and current_time.minute <= 10:             
+        # if current_time.second >= 5 and current_time.second <= 10:
+        if current_time.minute >= 5 and current_time.minute <= 10:             
             # start_time = datetime.now().replace(minute=0, second=0)-timedelta(hours=1) # # should be changed
             start_time = datetime.now().replace(minute=0, second=0)-timedelta(days=5) # # should be changed
             end_time = datetime.now().replace(minute=0, second=0)       
     
             hourly_alerts.run(mongo_collection, start_time, end_time, apiconfig['postnotificationalerts'])
             
-        # time.sleep(300)
-        time.sleep(5)
+        time.sleep(300)
+        # time.sleep(5)
 
 def startshiftbased_notification():  
         # completed_dict = {}
@@ -159,27 +159,27 @@ class Notification:
                 print("===========callback====",self.future_dict['event'])
                 self.future_dict['event'].add_done_callback(testcallbackFuture)
                     
-            # if "hourly" in self.future_dict:
-            #     if not self.future_dict["hourly"].running():
-            #         self.future_dict['hourly']=hourly_executor.submit(starthourly_notification)
-            #         print("===========callback====",self.future_dict["hourly"])
-            #         self.future_dict["hourly"].add_done_callback(testcallbackFuture)
+            if "hourly" in self.future_dict:
+                if not self.future_dict["hourly"].running():
+                    self.future_dict['hourly']=hourly_executor.submit(starthourly_notification)
+                    print("===========callback====",self.future_dict["hourly"])
+                    self.future_dict["hourly"].add_done_callback(testcallbackFuture)
                 
-            # else: 
-            #     self.future_dict['hourly']=hourly_executor.submit(starthourly_notification) 
-            #     print("===========callback====",self.future_dict["hourly"])
-            #     self.future_dict["hourly"].add_done_callback(testcallbackFuture)
+            else: 
+                self.future_dict['hourly']=hourly_executor.submit(starthourly_notification) 
+                print("===========callback====",self.future_dict["hourly"])
+                self.future_dict["hourly"].add_done_callback(testcallbackFuture)
                 
-            # if "shiftbased" in self.future_dict:
-            #     if not self.future_dict["shiftbased"].running():
-            #         self.future_dict['shiftbased']=shiftbased_executor.submit(startshiftbased_notification)
-            #         print("===========callback====",self.future_dict["shiftbased"])
-            #         self.future_dict["shiftbased"].add_done_callback(testcallbackFuture)
+            if "shiftbased" in self.future_dict:
+                if not self.future_dict["shiftbased"].running():
+                    self.future_dict['shiftbased']=shiftbased_executor.submit(startshiftbased_notification)
+                    print("===========callback====",self.future_dict["shiftbased"])
+                    self.future_dict["shiftbased"].add_done_callback(testcallbackFuture)
                 
-            # else: 
-            #     self.future_dict['shiftbased']=shiftbased_executor.submit(startshiftbased_notification) 
-            #     print("===========callback====",self.future_dict["shiftbased"])
-            #     self.future_dict["shiftbased"].add_done_callback(testcallbackFuture)
+            else: 
+                self.future_dict['shiftbased']=shiftbased_executor.submit(startshiftbased_notification) 
+                print("===========callback====",self.future_dict["shiftbased"])
+                self.future_dict["shiftbased"].add_done_callback(testcallbackFuture)
 
                     
                     
