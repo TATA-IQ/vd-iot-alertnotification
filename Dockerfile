@@ -12,4 +12,5 @@ RUN pip install protobuf==3.20.*
 copy notification /app
 WORKDIR /app
 # RUN mkdir /app/logs
-CMD ["python", "app.py"]
+Run chmod +x run.sh
+CMD ["run.sh"]
