@@ -76,8 +76,8 @@ def starthourly_notification():
         current_time = datetime.now()
         # if current_time.second >= 5 and current_time.second <= 10:
         if current_time.minute >= 5 and current_time.minute <= 10:             
-            # start_time = datetime.now().replace(minute=0, second=0)-timedelta(hours=1) # # should be changed
-            start_time = datetime.now().replace(minute=0, second=0)-timedelta(days=5) # # should be changed
+            start_time = datetime.now().replace(minute=0, second=0)-timedelta(hours=1) # # should be changed
+            # start_time = datetime.now().replace(minute=0, second=0)-timedelta(days=5) # # should be changed
             end_time = datetime.now().replace(minute=0, second=0)       
     
             hourly_alerts.run(mongo_collection, start_time, end_time, apiconfig['postnotificationalerts'])

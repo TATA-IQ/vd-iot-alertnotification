@@ -176,7 +176,8 @@ class shiftbased_alerts:
                         current_day_completed_end_times[date_key].append(each_end_time)
                         completed_np_inter[each_end_time] = np_inter[each_end_time]
                         
-                        np_final = {}                    
+                        np_final = {}   
+                        # on basis of notification ids                 
                         for i in np_inter[each_end_time]:
                             notification_id = i["notification_id"]
                             if notification_id not in np_final:        
