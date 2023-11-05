@@ -46,7 +46,7 @@ class create_dataframe:
     
     @staticmethod
     def summarization(df_all):
-        df_all.to_csv("df_all.csv")
+        # df_all.to_csv("df_all.csv")
         summary = df_all.groupby(['camera_id', 'camera_name','usecase_id', 
                                   'usecase_name','incident_id', 'incident_name']).agg({'incident_id': ['count']})
         s = summary.reset_index()
