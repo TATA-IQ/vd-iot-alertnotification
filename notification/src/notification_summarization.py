@@ -14,7 +14,10 @@ class create_dataframe:
                 t = 0
                 for data_lbl in w["misc"]:
                     if("data" in data_lbl): ## text in number plate 
+                    try:
                         d=d+int(data_lbl["data"])
+                    except ValueError:
+                        continue
                     if("text" in data_lbl):
                         t+=1 
                 temp1 = [w["incident_id"], w["name"], d, t]
