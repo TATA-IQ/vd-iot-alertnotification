@@ -1,48 +1,38 @@
-# Notification
+# Introduction 
+This is a alertnotification repo. 
 
-[![Release](https://img.shields.io/github/v/release/fpgmaas/Notification)](https://img.shields.io/github/v/release/fpgmaas/Notification)
-[![Build status](https://img.shields.io/github/actions/workflow/status/fpgmaas/Notification/main.yml?branch=main)](https://github.com/fpgmaas/Notification/actions/workflows/main.yml?query=branch%3Amain)
-[![codecov](https://codecov.io/gh/fpgmaas/Notification/branch/main/graph/badge.svg)](https://codecov.io/gh/fpgmaas/Notification)
-[![Commit activity](https://img.shields.io/github/commit-activity/m/fpgmaas/Notification)](https://img.shields.io/github/commit-activity/m/fpgmaas/Notification)
-[![License](https://img.shields.io/github/license/fpgmaas/Notification)](https://img.shields.io/github/license/fpgmaas/Notification)
+# How It Works
+1. Aggregate the notification group and get all the notification config and cache the data
+2. Read notification configuration data from cache
+3. Start processing for notification.
+4. Check for the update in cache and update the notification configurations
 
-notification services
+# Architecture
+![Architectural Flow](postprocessing/images/postprocess.png)
 
-- **Github repository**: <https://github.com/fpgmaas/Notification/>
-- **Documentation** <https://fpgmaas.github.io/Notification/>
+1. Notification API is hosted using uvicorn
+2. To make the alertnotification fast, we are running multiple thread pool to process the request faster
+3. Each threadpool are dedicated to handle different types of alerts such as event-based alerts, Shift-based alerts, and hourly alerts for notification.
+4. Event-based Alerts are triggered by Kafka consumer events, Hourly Alerts are triggered each hour and Shift-based are triggered at the end of their respective shifts.
+5. After processing the data, notifications are send as output.
 
-## Getting started with your project
+# Dependency
+1. This Module is dependent on the https://tatacommiot@dev.azure.com/tatacommiot/Video%20Based%20IoT/_git/vd-iot-dataapiservice
+2. This module also needs kafka broker
+3. This module will be dependent on post process service
 
-First, create a repository on GitHub with the same name as this project, and then run the following commands:
+# Installation
+1. Install Python3.9 
+2. Install redis-server(sudo apt-get install redis)
+3. poetry install
 
-``` bash
-git init -b main
-git add .
-git commit -m "init commit"
-git remote add origin git@github.com:fpgmaas/Notification.git
-git push -u origin main
-```
+# Run App
+1. chmod +x run.sh
+2. ./run.sh
 
-Finally, install the environment and the pre-commit hooks with 
-
-```bash
-make install
-```
-
-You are now ready to start development on your project! The CI/CD
-pipeline will be triggered when you open a pull request, merge to main,
-or when you create a new release.
-
-To finalize the set-up for publishing to PyPi or Artifactory, see
-[here](https://fpgmaas.github.io/cookiecutter-poetry/features/publishing/#set-up-for-pypi).
-For activating the automatic documentation with MkDocs, see
-[here](https://fpgmaas.github.io/cookiecutter-poetry/features/mkdocs/#enabling-the-documentation-on-github).
-To enable the code coverage reports, see [here](https://fpgmaas.github.io/cookiecutter-poetry/features/codecov/).
-
-## Releasing a new version
-
-
-
----
-
-Repository initiated with [fpgmaas/cookiecutter-poetry](https://github.com/fpgmaas/cookiecutter-poetry).
+# Docker 
+1. Contenirization is enabled
+2. change the config.yaml
+2. Navigate to the Dockerfile level
+2. build the container (sudo docker build -t "notification")
+3. Run the container (sudo oocker run -t "notification")
