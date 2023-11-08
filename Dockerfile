@@ -11,6 +11,9 @@ RUN pip install requests
 RUN pip install protobuf==3.20.*
 RUN pip install shared-memory-dict
 RUN pip install PyYaml
+Run pip install opencv-python
+Run pip install schedule
+Run pip install 'fastapi[all]'
 copy notification/ /app
 WORKDIR /app
 # RUN mkdir /app/logs

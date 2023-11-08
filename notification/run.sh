@@ -1,4 +1,4 @@
 #!/bin/bash
 redis-server --daemonize yes &
-python cache.py &
-python app.py
+python3 cache.py &
+python3 app.py
