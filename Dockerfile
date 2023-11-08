@@ -11,8 +11,8 @@ RUN pip install requests
 RUN pip install protobuf==3.20.*
 RUN pip install shared-memory-dict
 RUN pip install PyYaml
-copy notification /app
+copy notification/ /app
 WORKDIR /app
 # RUN mkdir /app/logs
-Run chmod +x run.sh
-CMD ["run.sh"]
+CMD chmod +x run.sh
+CMD ./run.sh
