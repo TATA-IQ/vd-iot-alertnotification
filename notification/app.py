@@ -136,6 +136,10 @@ shiftbased_smd = SharedMemoryDict(name='shiftbased', size=10000000)
 #         time.sleep(1)
 
 if __name__ == "__main__":
+    try:
+        os.makedirs("/app/logs", exist_ok=True)
+    except Exception as exp:
+        print(exp)
     logg = create_rotating_log("logs/logs.log")
     logger = create_rotating_log("logs/log.log")
     try:

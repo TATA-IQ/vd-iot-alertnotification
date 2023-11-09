@@ -1,6 +1,5 @@
 from kafka import KafkaConsumer
 from concurrent.futures import ThreadPoolExecutor
-import cv2
 import numpy as np
 import json
 import requests 
@@ -14,8 +13,6 @@ import ast
 from queue import Queue
 from kafka import TopicPartition
 from shared_memory_dict import SharedMemoryDict
-from PIL import Image
-from io import BytesIO
 
 from src.eventbased_notification import event_alerts
 os.environ["SHARED_MEMORY_USE_LOCK"]="1"
@@ -123,8 +120,11 @@ class NotificationConsumer():
                             res['params'].append(d["params"][0])
 
                         print("res=================>",res)
-                        # r = requests.post(url, json=json.dumps(res))
-                        # print(f"Status Code: {r.status_code}, Response: {r.json()}")
+                        try:
+                            r = requests.post(url, json=json.dumps(res))
+                            print(f"Status Code: {r.status_code}, Response: {r.json()}")
+                        except Exception as e:
+                            print("exception raised ",e)
                     # for np in event_smd[str(camera_id)][str(usecase_id)]:
                     #     event_alerts.create_notification(np, data, url)          
                 

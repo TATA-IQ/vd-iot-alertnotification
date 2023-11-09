@@ -215,6 +215,11 @@ class shiftbased_alerts:
                             print(current_day_completed_end_times)
                             print(f"each end time: {each_end_time} and notification_id : {not_id}")    
                             print("res dict===", res)
+                            try:
+                                r = requests.post(url, json=json.dumps(res))
+                                print(f"Status Code: {r.status_code}, Response: {r.json()}")
+                            except Exception as e:
+                                print("exception raised ",e)
                             # r = requests.post(url, json=json.dumps(res))
                             # print(f"Status Code: {r.status_code}, Response: {r.json()}")
                             
