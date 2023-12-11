@@ -5,7 +5,7 @@ from bson.json_util import dumps
 import pandas as pd
 from datetime import datetime, timedelta
 import pandas as pd
-import schedule
+# import schedule
 import time
 import json
 import mysql.connector
@@ -18,8 +18,8 @@ import os
 import requests
 import uvicorn
 import redis
-from typing import Union
-import mysql.connector
+# from typing import Union
+# import mysql.connector
 
 from fastapi import FastAPI
 from pydantic import BaseModel

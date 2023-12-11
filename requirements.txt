@@ -1,0 +1,13 @@
+pandas
+mysql-connector-python
+SQLAlchemy==2.0.18
+pymongo
+kafka-python
+redis
+requests
+protobuf==3.20.*
+shared-memory-dict==0.7.2
+PyYaml
+opencv-python
+schedule
+'fastapi[all]'
