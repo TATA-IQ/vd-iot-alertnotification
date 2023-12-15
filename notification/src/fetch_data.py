@@ -1,28 +1,57 @@
 import requests
-
+from datetime import datetime
 class Mongo_Data:
-    print("in mongo data")
     def get_data(mongo_collection,start_time=None, end_time=None):
+        print("in mongo data class")
         if start_time and end_time:
             print({"time.UTC_time": {"$gt":start_time,"$lte":end_time}})
-            cursor = mongo_collection.find({"time.UTC_time": {"$gt":start_time,"$lte":end_time}})
+            start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+            start_time = int(str(int(start_time.timestamp()))+"000")
+            end_time = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
+            end_time = int(str(int(end_time.timestamp()))+"000")
+            print({"time.timestamp": {"$gt":start_time,"$lte":end_time}})
+            # cursor = mongo_collection.find({"time.UTC_time": {"$gt":start_time,"$lte":end_time}})
+            cursor = mongo_collection.find({"time.timestamp": {"$gt":start_time,"$lte":end_time}})
             list_cur = list(cursor)
             return list_cur
         else:
             print({"time.UTC_time": {"$lte":end_time}})
-            cursor = mongo_collection.find({"time.UTC_time": {"$lte":end_time}})
+            # cursor = mongo_collection.find({"time.UTC_time": {"$lte":end_time}})
+            end_time = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
+            end_time = int(str(int(end_time.timestamp()))+"000")
+            # cursor = mongo_collection.find({"time.UTC_time": {"$gt":start_time,"$lte":end_time}})
+            cursor = mongo_collection.find({"time.timestamp": {"$lte":end_time}})
             list_cur = list(cursor)
             return list_cur
+    # def get_data(mongo_collection,start_time=None, end_time=None):
+    #     print("in mongo data")
+    #     if start_time and end_time:
+    #         print({"time.UTC_time": {"$gt":start_time,"$lte":end_time}})
+    #         cursor = mongo_collection.find({"time.UTC_time": {"$gt":start_time,"$lte":end_time}})
+    #         list_cur = list(cursor)
+    #         return list_cur
+    #     else:
+    #         print({"time.UTC_time": {"$lte":end_time}})
+    #         cursor = mongo_collection.find({"time.UTC_time": {"$lte":end_time}})
+    #         list_cur = list(cursor)
+    #         return list_cur
     def get_hourlydata(mongo_collection,camera_id, usecase_id, start_time=None, end_time=None):
         if start_time and end_time:
             print({"time.UTC_time": {"$gt":start_time,"$lte":end_time}, "hierarchy.camera_id":camera_id,"usecase.usecase_id":usecase_id})
-            mongo_query={"time.UTC_time": {"$gt":start_time,"$lte":end_time}, "hierarchy.camera_id":camera_id,"usecase.usecase_id":usecase_id}
+            start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+            start_time = int(str(int(start_time.timestamp()))+"000")
+            end_time = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
+            end_time = int(str(int(end_time.timestamp()))+"000")
+            print({"time.timestamp": {"$gt":start_time,"$lte":end_time}})
+            mongo_query={"time.timestamp": {"$gt":start_time,"$lte":end_time}, "hierarchy.camera_id":camera_id,"usecase.usecase_id":usecase_id}
             cursor = mongo_collection.find(mongo_query)
             list_cur = list(cursor)
             return list_cur
         else:
             print({"time.UTC_time": {"$lte":end_time}})
-            cursor = mongo_collection.find({"time.UTC_time": {"$lte":end_time},"hierarchy.camera_id":camera_id,"usecase.usecase_id":usecase_id})
+            end_time = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
+            end_time = int(str(int(end_time.timestamp()))+"000")
+            cursor = mongo_collection.find({"time.timestamp": {"$lte":end_time},"hierarchy.camera_id":camera_id,"usecase.usecase_id":usecase_id})
             list_cur = list(cursor)
             return list_cur
         

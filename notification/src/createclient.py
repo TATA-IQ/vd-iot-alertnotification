@@ -53,19 +53,19 @@ class CreateClient():
 
         return collection
     
-    def create_sql_engine(self,):
-        print("===== creating mysql engine ======")
-        password = self.dbconfig["password"]
-        updated_password = urllib.parse.quote_plus(password)
-        print("password:", password)
-        print("updated_password",updated_password)
+    # def create_sql_engine(self,):
+    #     print("===== creating mysql engine ======")
+    #     password = self.dbconfig["password"]
+    #     updated_password = urllib.parse.quote_plus(password)
+    #     print("password:", password)
+    #     print("updated_password",updated_password)
 
-        engine=create_engine("mysql+pymysql://{user}:{pw}@{host}/{db}".format(host=self.dbconfig["host"], port = str(self.dbconfig["port"]), db=self.dbconfig["db"], user=self.dbconfig["username"], pw=updated_password))
-        return engine
+    #     engine=create_engine("mysql+pymysql://{user}:{pw}@{host}/{db}".format(host=self.dbconfig["host"], port = str(self.dbconfig["port"]), db=self.dbconfig["db"], user=self.dbconfig["username"], pw=updated_password))
+    #     return engine
     
-    def insert_into_db(self,df):
-        print("===== inside into insert into db =====")
-        engine = self.create_sql_engine()
-        print(df.head())
-        df.to_sql(self.dbconfig["tablename"], engine, if_exists='append', index=False)
+    # def insert_into_db(self,df):
+    #     print("===== inside into insert into db =====")
+    #     engine = self.create_sql_engine()
+    #     print(df.head())
+    #     df.to_sql(self.dbconfig["tablename"], engine, if_exists='append', index=False)
         

@@ -123,8 +123,10 @@ class shiftbased_alerts:
                             start_time = np['start_time']           
                             end_time = np['end_time'] 
                             # start_time = 1698230545000   
-                            start_time =(today_timestampdate+start_time)*1000
-                            end_time =int(today_timestampdate+end_time)*1000
+                            # start_time =(today_timestampdate+start_time)*1000
+                            # end_time =int(today_timestampdate+end_time)*1000
+                            start_time =int(str(int(today_timestampdate+start_time))+"000")
+                            end_time =int(str(int(today_timestampdate+end_time))+"000")
                             print("start,end",start_time, end_time)
                                 
                             list_cur = Mongo_Data.get_shiftbaseddata(mongo_collection, camera_id, usecase_id, start_time, end_time)
@@ -194,8 +196,10 @@ class shiftbased_alerts:
                                 start_time = np['start_time']           
                                 end_time = np['end_time'] 
                                 # start_time = 1698230545000   
-                                start_time =int(today_timestampdate+start_time)*1000 
-                                end_time =int(today_timestampdate+end_time)*1000
+                                # start_time =(today_timestampdate+start_time)*1000
+                                # end_time =int(today_timestampdate+end_time)*1000
+                                start_time =int(str(int(today_timestampdate+start_time))+"000")
+                                end_time =int(str(int(today_timestampdate+end_time))+"000")
                                 print("start,end",start_time, end_time)
                                     
                                 list_cur = Mongo_Data.get_shiftbaseddata(mongo_collection, camera_id, usecase_id, start_time, end_time)
