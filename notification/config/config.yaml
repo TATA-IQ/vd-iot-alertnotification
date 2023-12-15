@@ -1,25 +1,25 @@
 db:
-  host: "172.31.26.109"
-  username: "application"
-  db: "appdb"
-  password: "applicationP@33word"
+  host: "172.16.0.214"
+  username: "vishal"
+  db: "tcl-dev"
+  password: "Welcome#123"
   tablename: "incident_summary"
   updatetablename: "incident_summary_time"
   port: 3306
 mongodb:
-  host: "172.31.26.109"
+  host: "172.16.0.204"
   port: 27017
-  username: "application"
-  password: "application_pass_2023"
   connect: False
   database: "history"
   collection: "reports"
 apis:
-  geteventnotification: "http://10.0.153.141:8000/geteventnotification"
-  gethournotification: "http://10.0.153.141:8000/gethournotification"
-  getendofshiftnotification: "http://10.0.153.141:8000/getendofshiftnotification"
-  getnotificationdetails: "http://10.0.153.141:8000/getnotificationdetails"
-  postnotificationalerts: "http://172.31.26.109:7575/api/v1/mailservice/email/notification"
+  geteventnotification: "http://172.16.0.204:8051/geteventnotification"
+  gethournotification: "http://172.16.0.204:8051/gethournotification"
+  getendofshiftnotification: "http://172.16.0.204:8051/getendofshiftnotification"
+  getnotificationdetails: "http://172.16.0.204:8051/getnotificationdetails"
+  postnotificationalerts: "http://172.16.0.170:7575/api/v1/mailservice/email/notification"
 kafka:
-  - 172.31.26.109:9092
+  - 172.16.0.175:9092
+  - 172.16.0.171:9092
+  - 172.16.0.174:9092
 
