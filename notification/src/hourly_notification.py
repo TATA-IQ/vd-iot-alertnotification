@@ -160,11 +160,14 @@ class hourly_alerts:
                         res['params'].append(d["params"][0])
             
             print("res dict===", res)
-            try:
-                r = requests.post(url, json=json.dumps(res))
-                print(f"Status Code: {r.status_code}, Response: {r.json()}")
-            except Exception as e:
-                print("exception raised ",e)
+            if res['total_count']>0:
+                try:
+                    r = requests.post(url, json=json.dumps(res))
+                    print(f"Status Code: {r.status_code}, Response: {r.json()}")
+                except Exception as e:
+                    print("exception raised ",e)
+            else:
+                print("totalcount is 0")
             # r = requests.post(url, json=json.dumps(res))
             # print(f"Status Code: {r.status_code}, Response: {r.json()}")
                     
