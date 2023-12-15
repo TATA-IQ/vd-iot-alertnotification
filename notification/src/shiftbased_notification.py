@@ -122,8 +122,8 @@ class shiftbased_alerts:
                             usecase_id = np['usecase_id']    
                             start_time = np['start_time']           
                             end_time = np['end_time'] 
-                            start_time = 1698230545000   
-                            # start_time =(today_timestampdate+start_time)   
+                            # start_time = 1698230545000   
+                            start_time =(today_timestampdate+start_time)*1000
                             end_time =int(today_timestampdate+end_time)*1000
                             print("start,end",start_time, end_time)
                                 
@@ -193,8 +193,8 @@ class shiftbased_alerts:
                                 usecase_id = np['usecase_id']    
                                 start_time = np['start_time']           
                                 end_time = np['end_time'] 
-                                start_time = 1698230545000   
-                                # start_time =(today_timestampdate+start_time)   
+                                # start_time = 1698230545000   
+                                start_time =int(today_timestampdate+start_time)*1000 
                                 end_time =int(today_timestampdate+end_time)*1000
                                 print("start,end",start_time, end_time)
                                     
