@@ -22,6 +22,7 @@ class NotificationConsumer():
     def __init__(self,kafkashost):
         self.kill=False
         self.kafkahost=kafkashost
+        print("*******kafkahost*****",self.kafkahost)
         self.consumer=None
         # self.log=logger
         self.check=False

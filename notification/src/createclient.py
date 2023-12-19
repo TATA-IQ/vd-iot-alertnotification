@@ -4,11 +4,11 @@ from sqlalchemy import create_engine
 import urllib
 
 class CreateClient():
-    def __init__(self,config):
+    def __init__(self,dbconfig,mongoconfig):
         print("====in create client=====")
-        self.config=config
-        self.dbconfig = self.config['db']
-        self.mongodbconf = self.config['mongodb']
+        
+        self.dbconfig = dbconfig
+        self.mongodbconf = mongoconfig
     
     def connection_sql(self,):
         print("======creating mysql connection ======")

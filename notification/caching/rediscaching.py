@@ -14,16 +14,22 @@ class Caching:
     """
     def __init__(
         self,
-        api: dict,  
+        api: dict,
+        alertconf,
+        kafkaconf
+
     ) -> None:  # noqa: E501
         """
         Initialize the caching
         Args:
             api: dict of apis
         """
-        pool = redis.ConnectionPool(host="localhost", port=6379, db=0)
+        pool = redis.ConnectionPool(host=alertconf["redis"]["host"], port=alertconf["redis"]["port"], db=0)
         self.r = redis.Redis(connection_pool=pool)
         self.api = api
+        self.alertconf=alertconf
+        self.kafkaconf=kafkaconf
+        
         # self.topic = PersistTopic()
         # self.topic = "incident_event"
         
@@ -112,12 +118,8 @@ class Caching:
 
     def checkEvents(self):
         consumer = KafkaConsumer(
-            "dbevents",
-            bootstrap_servers=[
-                "172.16.0.175:9092",
-                "172.16.0.171:9092",
-                "172.16.0.174:9092",
-            ],
+            self.kafkaconf["app_events"],
+            bootstrap_servers=self.kafkaconf["kafka"],
             auto_offset_reset="latest",
             value_deserializer=lambda m: json.loads(m.decode("utf-8")),
         )

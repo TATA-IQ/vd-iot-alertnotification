@@ -44,7 +44,7 @@ class hourly_alerts:
                 par = []
                 cnt = 0
                 for i in range(0,len(df_not)):
-                    par.append({'usecase_id': df_not.iloc[i]['usecase_id'], 'usecase_name':df_not.iloc[i]['usecase_name'], 'incident_id':df_not.iloc[i]['incident_id'], 'incident_id':df_not.iloc[i]['incident_name'], 'camera_id':df_not.iloc[i]['camera_id'], 'camera_id':df_not.iloc[i]['camera_name'], 'incident_count': df_not.iloc[i]['incident_count']})
+                    par.append({'usecase_id': df_not.iloc[i]['usecase_id'], 'usecase_name':df_not.iloc[i]['usecase_name'], 'incident_id':df_not.iloc[i]['incident_id'], 'incident_id':df_not.iloc[i]['incident_name'], 'camera_id':df_not.iloc[i]['camera_id'], 'camera_name':df_not.iloc[i]['camera_name'], 'incident_count': df_not.iloc[i]['incident_count']})
                     cnt=cnt+df_not.iloc[i]['incident_count']
                 print("===========here===========")
                 print(w)

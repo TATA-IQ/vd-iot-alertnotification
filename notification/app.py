@@ -12,13 +12,15 @@ import redis
 # from sqlalchemy import create_engine
 import threading
 from concurrent.futures import ThreadPoolExecutor
-
-
+import consul
+import requests
 import os
 import requests
 import uvicorn
 from typing import Union
 import mysql.connector
+
+
 
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -134,13 +136,98 @@ shiftbased_smd = SharedMemoryDict(name='shiftbased', size=10000000)
 #     while True:
 #         schedule.run_pending()
 #         time.sleep(1)
+def get_service_address(consul_client,service_name,env):
+    while True:
+        
+        try:
+            services=consul_client.catalog.service(service_name)[1]
+            print(services)
+            for i in services:
+                if env == i["ServiceID"].split("-")[-1]:
+                    return i
+        except:
+            time.sleep(10)
+            continue
+
+
+
+def get_confdata(consul_conf):
+    consul_client = consul.Consul(host=consul_conf["host"],port=consul_conf["port"])
+    pipelineconf=get_service_address(consul_client,"pipelineconfig",consul_conf["env"])
+
+    alertconf=None
+    dbconf=None
+    
+    env=consul_conf["env"]
+    
+    endpoint_addr="http://"+pipelineconf["ServiceAddress"]+":"+str(pipelineconf["ServicePort"])
+    print("endpoint addr====",endpoint_addr)
+    while True:
+        
+        try:
+            res=requests.get(endpoint_addr+"/")
+            endpoints=res.json()
+            print("===got endpoints===",endpoints)
+            break
+        except Exception as ex:
+            print("endpoint exception==>",ex)
+            time.sleep(10)
+            continue
+    
+    while True:
+        try:
+            res=requests.get(endpoint_addr+endpoints["endpoint"]["alert"])
+            alertconf=res.json()
+            print("alertconf===>",alertconf)
+            break
+            
+
+        except Exception as ex:
+            print("containerconf exception==>",ex)
+            time.sleep(10)
+            continue
+    while True:
+        try:
+            res=requests.get(endpoint_addr+endpoints["endpoint"]["kafka"])
+            kafkaconf=res.json()
+            print("kafkaconf===>",kafkaconf)
+            break
+            
+
+        except Exception as ex:
+            print("containerconf exception==>",ex)
+            time.sleep(10)
+            continue
+    print("=======searching for dbapi====")
+    while True:
+        try:
+            print("=====consul search====")
+            dbconf=get_service_address(consul_client,"dbapi",consul_conf["env"])
+            print("****",dbconf)
+            dbhost=dbconf["ServiceAddress"]
+            dbport=dbconf["ServicePort"]
+            res=requests.get(endpoint_addr+endpoints["endpoint"]["dbapi"])
+            dbres=res.json()
+            print("===got db conf===")
+            print(dbres)
+            break
+        except Exception as ex:
+            print("db discovery exception===",ex)
+            time.sleep(10)
+            continue
+    for i in dbres["apis"]:
+        print("====>",i)
+        dbres["apis"][i]="http://"+dbhost+":"+str(dbport)+dbres["apis"][i]
+
+    
+    print("======dbres======")
+    print(dbres)
+    print(alertconf)
+    return  dbres,alertconf,kafkaconf
 
 if __name__ == "__main__":
-    try:
-        os.makedirs("/app/logs", exist_ok=True)
-    except Exception as exp:
-        print(exp)
-    logg = create_rotating_log("logs/logs.log")
+    
+    
     logger = create_rotating_log("logs/log.log")
     try:
         event_smd.shm.close()
@@ -152,6 +239,14 @@ if __name__ == "__main__":
         shiftbased_smd.shm.close()
         shiftbased_smd.shm.unlink()
         del shiftbased_smd
+        
+        config = Config.yamlconfig("config/config.yaml")[0]
+        dbres,alertconf,kafkaconf=get_confdata(config["consul"])
+        mongoconfig=alertconf["mongodb"]
+        dbconfig=alertconf["db"]
+        notification_api=alertconf["notification_api"]
+        notobj = Notification(dbconfig,mongoconfig,kafkaconf,dbres["apis"],notification_api,logger)
+        notobj.notify()
     except KeyboardInterrupt:
         print("=====Removing Shared Memory Refrence=====")
         event_smd.shm.close()
@@ -164,7 +259,6 @@ if __name__ == "__main__":
         shiftbased_smd.shm.unlink()     
         del shiftbased_smd
     # main()
-    notobj = Notification()
-    notobj.notify()
+    
 
 # schedule.every().hour.at(":05").do(run)
