@@ -37,6 +37,8 @@ from src.event_consumer import NotificationConsumer
 from src.hourly_notification import hourly_alerts
 from src.shiftbased_notification import shiftbased_alerts
 
+from console_logging.console import Console
+console=Console()
 
 
 os.environ["SHARED_MEMORY_USE_LOCK"]="1"
@@ -60,9 +62,9 @@ def testcallbackFuture(future):
     print(future.result())
     print("=======callback future====",future.exception())
 
-def startevent_notification(kafkahost,notification_url):
-    print("##########kafka",kafkahost)
-    eventobj = NotificationConsumer(kafkahost)
+def startevent_notification(kafkahost,notification_url,logger):
+    console.info(f"##########kafka {kafkahost}")
+    eventobj = NotificationConsumer(kafkahost,logger)
     consumer = eventobj.connectConsumer() ##
     eventobj.runConsumer(notification_url)
 
@@ -72,7 +74,9 @@ def startevent_notification(kafkahost,notification_url):
     
 #     hourly_alerts.run(mongo_collection, start_time, end_time)
     
-def starthourly_notification(mongo_collection,notification_url):   
+def starthourly_notification(mongo_collection,notification_url, logger): 
+    logger.info("started hourly notification")  
+    console.info("started hourly notification")  
     while True:
         current_time = datetime.now()
         # if current_time.second >= 5 and current_time.second <= 10:
@@ -81,18 +85,20 @@ def starthourly_notification(mongo_collection,notification_url):
             # start_time = datetime.now().replace(minute=0, second=0)-timedelta(days=5) # # should be changed
             end_time = datetime.now().replace(minute=0, second=0)       
     
-            hourly_alerts.run(mongo_collection, start_time, end_time, notification_url)
+            hourly_alerts_obj = hourly_alerts(mongo_collection, start_time, end_time, notification_url, logger)
+            hourly_alerts_obj.run()
             
         time.sleep(300)
         # time.sleep(5)
 
-def startshiftbased_notification(mongo_collection,notification_url):  
+def startshiftbased_notification(mongo_collection,notification_url, logger):  
         # completed_dict = {}
-        shiftbased_alerts.run_v2(mongo_collection,notification_url)
+        shiftbased_alerts.run_v2(mongo_collection,notification_url, logger)
 
 class Notification:
-    def __init__(self,dbconfig,mongoconfig,kafka,apis,notification_api,logger):
+    def __init__(self,alertconfig, dbconfig,mongoconfig,kafka,apis,notification_api,logger):
         self.config = Config.yamlconfig("config/config.yaml")[0]
+        self.config = alertconfig
         self.dbconfig=dbconfig
         self.mongoconfig=mongoconfig
         self.apiconfig=apis
@@ -100,7 +106,8 @@ class Notification:
         self.notification_api=notification_api
         self.clientobj =CreateClient(dbconfig,mongoconfig)
         self.mongo_collection =self.clientobj.mongo_client()
-        pool = redis.ConnectionPool(host='localhost', port=6379, db=0)
+        # pool = redis.ConnectionPool(host='localhost', port=6379, db=0)
+        pool = redis.ConnectionPool(host=self.config["redis"]["host"], port=self.config["redis"]["port"], db=0)
         self.r = redis.Redis(connection_pool=pool)
         self.future_dict = {}
         self.logger=logger
@@ -153,35 +160,41 @@ class Notification:
             # print(self.future_dict)    
             if "event" in self.future_dict:
                 if not self.future_dict["event"].running():
-                    self.future_dict['event']=event_executor.submit(startevent_notification,self.kafkahost["kafka"],self.notification_api)
-                    print("===========callback====",self.future_dict['event'])
+                    self.future_dict['event']=event_executor.submit(startevent_notification,self.kafkahost["kafka"],self.notification_api,self.logger)
+                    self.logger.info(f"===========callback====,{self.future_dict['event']}")
+                    console.info(f"===========callback====,{self.future_dict['event']}")
                     self.future_dict['event'].add_done_callback(testcallbackFuture)
                 
             else: 
-                self.future_dict['event']=event_executor.submit(startevent_notification,self.kafkahost["kafka"],self.notification_api) 
-                print("===========callback====",self.future_dict['event'])
+                self.future_dict['event']=event_executor.submit(startevent_notification,self.kafkahost["kafka"],self.notification_api,self.logger) 
+                self.logger.info(f"===========callback====,{self.future_dict['event']}")
+                console.info(f"===========callback====,{self.future_dict['event']}")
                 self.future_dict['event'].add_done_callback(testcallbackFuture)
                     
             if "hourly" in self.future_dict:
                 if not self.future_dict["hourly"].running():
-                    self.future_dict['hourly']=hourly_executor.submit(starthourly_notification,self.mongo_collection,self.notification_api)
-                    print("===========callback====",self.future_dict["hourly"])
+                    self.future_dict['hourly']=hourly_executor.submit(starthourly_notification,self.mongo_collection,self.notification_api, self.logger)
+                    self.logger.info(f"===========callback====,{self.future_dict['hourly']}")
+                    console.info(f"===========callback====,{self.future_dict['hourly']}")
                     self.future_dict["hourly"].add_done_callback(testcallbackFuture)
                 
             else: 
-                self.future_dict['hourly']=hourly_executor.submit(starthourly_notification,self.mongo_collection,self.notification_api) 
-                print("===========callback====",self.future_dict["hourly"])
+                self.future_dict['hourly']=hourly_executor.submit(starthourly_notification,self.mongo_collection,self.notification_api, self.logger) 
+                self.logger.info(f"===========callback====,{self.future_dict['hourly']}")
+                console.info(f"===========callback====,{self.future_dict['hourly']}")
                 self.future_dict["hourly"].add_done_callback(testcallbackFuture)
                 
             if "shiftbased" in self.future_dict:
                 if not self.future_dict["shiftbased"].running():
-                    self.future_dict['shiftbased']=shiftbased_executor.submit(startshiftbased_notification,self.mongo_collection,self.notification_api)
-                    print("===========callback====",self.future_dict["shiftbased"])
+                    self.future_dict['shiftbased']=shiftbased_executor.submit(startshiftbased_notification,self.mongo_collection,self.notification_api, self.logger)
+                    self.logger.info(f"===========callback==={self.future_dict['shiftbased']}=")
+                    console.info(f"===========callback==={self.future_dict['shiftbased']}=")
                     self.future_dict["shiftbased"].add_done_callback(testcallbackFuture)
                 
             else: 
-                self.future_dict['shiftbased']=shiftbased_executor.submit(startshiftbased_notification,self.mongo_collection,self.notification_api) 
-                print("===========callback====",self.future_dict["shiftbased"])
+                self.future_dict['shiftbased']=shiftbased_executor.submit(startshiftbased_notification,self.mongo_collection,self.notification_api, self.logger) 
+                self.logger.info(f"===========callback===={self.future_dict['shiftbased']}")
+                console.info(f"===========callback===={self.future_dict['shiftbased']}")
                 self.future_dict["shiftbased"].add_done_callback(testcallbackFuture)
 
                     

@@ -4,6 +4,8 @@ import os
 import requests
 import json
 import multiprocessing as mp
+from console_logging.console import Console
+console=Console()
 os.environ["SHARED_MEMORY_USE_LOCK"]="1"
 
 event_smd = SharedMemoryDict(name='event', size=10000000)

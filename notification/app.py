@@ -38,6 +38,8 @@ from src.notification_summarization import create_dataframe
 from src.fetch_data import Mongo_Data, Sql_Data
 from src.eventbased_notification import event_alerts
 from src.hourly_notification import hourly_alerts
+from console_logging.console import Console
+console=Console()
 
 os.environ["SHARED_MEMORY_USE_LOCK"]="1"
 
@@ -227,7 +229,7 @@ def get_confdata(consul_conf):
 
 if __name__ == "__main__":
     
-    
+    os.makedirs("logs", exist_ok=True)
     logger = create_rotating_log("logs/log.log")
     try:
         event_smd.shm.close()
@@ -245,7 +247,7 @@ if __name__ == "__main__":
         mongoconfig=alertconf["mongodb"]
         dbconfig=alertconf["db"]
         notification_api=alertconf["notification_api"]
-        notobj = Notification(dbconfig,mongoconfig,kafkaconf,dbres["apis"],notification_api,logger)
+        notobj = Notification(alertconf,dbconfig,mongoconfig,kafkaconf,dbres["apis"],notification_api,logger)
         notobj.notify()
     except KeyboardInterrupt:
         print("=====Removing Shared Memory Refrence=====")

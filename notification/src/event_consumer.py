@@ -14,20 +14,26 @@ from queue import Queue
 from kafka import TopicPartition
 from shared_memory_dict import SharedMemoryDict
 
+from console_logging.console import Console
+console=Console()
+
 from src.eventbased_notification import event_alerts
 os.environ["SHARED_MEMORY_USE_LOCK"]="1"
 
 event_smd = SharedMemoryDict(name='event', size=10000000)
 class NotificationConsumer():
-    def __init__(self,kafkashost):
+    def __init__(self,kafkashost, logger):
         self.kill=False
         self.kafkahost=kafkashost
-        print("*******kafkahost*****",self.kafkahost)
+        self.logger = logger
+        self.logger.info("*******kafkahost*****{self.kafkahost}")
+        console.info("*******kafkahost*****{self.kafkahost}")
         self.consumer=None
         # self.log=logger
         self.check=False
         self.previous_time=datetime.now()
         self.topic="incident_event"
+        
         # self.log.info(f"Starting for {self.camera_id} and topic {self.topic}")
         
     def closeConsumer(self):
@@ -55,15 +61,15 @@ class NotificationConsumer():
         try:
             msg=json.loads(msg.value)
         except Exception as e:
-            print(msg, e)
+            self.logger.info(f"message {msg}, exp {e}")
         # print(msg)
             
         incident_event = msg['incident_event']
         return incident_event
         #your message parser code
         
-    def get_event_nps(event_nps):
-        print("in get event nps")
+    def get_event_nps(self,event_nps):
+        self.logger.info("in get event nps")
         np_final={}
         for i in event_nps:
             notification_id = i["notification_id"]
@@ -73,30 +79,30 @@ class NotificationConsumer():
         return np_final
     
     def runConsumer(self, url):
-        print(self.consumer)
+        self.logger.info(self.consumer)
         self.check=True        
-        print("here in run")
+        self.logger.info("here in run consumer")
+        console.info("here in run consumer")
         # print(consumer)
         # while True:
         #     print(self.consumer)
         for message in self.consumer:
         # for message in consumer:
 
-            print("===Running=====")
+            self.logger.info("===consumer running for a message=====")
             boolevent=False
             data = self.messageParser(message)
             camera_id = data['hierarchy']['camera_id']
             usecase_id = data['usecase']['usecase_id']
-            print(f"camera_id: {camera_id} and usecase__id: {usecase_id}")
-            print("*"*100)
-            # print(event_smd)
-            print("*"*100)
-            print(data)
-            print("#"*100)
+            self.logger.info(f"camera_id: {camera_id} and usecase__id: {usecase_id}")
+            # print("*"*100)
+            # # print(event_smd)
+            # print("*"*100)
+            # print(data)
             
             try:
                 if event_smd[str(camera_id)][str(usecase_id)]:
-                    print("in event smd for ",camera_id,usecase_id)
+                    self.logger.info(f"in event smd for cam id {camera_id} and usecase_id {usecase_id} ")
                 # if event_smd[camera_id][usecase_id]:
                     boolevent=True
                     # print("9"*100)
@@ -112,7 +118,7 @@ class NotificationConsumer():
                     # print(np_final)
                     # print("#"*100)
                     for not_id in np_final:
-                        print("here")
+                        self.logger.info("here in run consumer np final ")
                         res = {"notification_id":int(not_id),"total_count":0,"params":[]}
                         for np in np_final[not_id]:
                             d = event_alerts.create_notification(np, data)
@@ -120,18 +126,23 @@ class NotificationConsumer():
                             res['total_count'] += d["total_count"][0]
                             res['params'].append(d["params"][0])
 
-                        print("res=================>",res)
+                        self.logger.info(f"res=================>{res}")
+                        console.info(f"res=================>{res}")
                         try:
                             r = requests.post(url, json=json.dumps(res))
-                            print(f"Status Code: {r.status_code}, Response: {r.json()}")
+                            self.logger.info(f"Status Code: {r.status_code}, Response: {r.json()}")
+                            console.info(f"Status Code: {r.status_code}, Response: {r.json()}")
                         except Exception as e:
-                            print("exception raised ",e)
+                            self.logger.error(f"exception raised in event consumer{e}")
+                            console.info(f"exception raised in event consumer{e}")
                     # for np in event_smd[str(camera_id)][str(usecase_id)]:
                     #     event_alerts.create_notification(np, data, url)          
                 
             except:
                 boolevent=False
                 print(f"couldn't find event for camera_id: {camera_id} and usecase_id: {usecase_id}")
+                self.logger.error(f"couldn't find event for camera_id: {camera_id} and usecase_id: {usecase_id}")
+                console.error(f"couldn't find event for camera_id: {camera_id} and usecase_id: {usecase_id}")
                 
             
             

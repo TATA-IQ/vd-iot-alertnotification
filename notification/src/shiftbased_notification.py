@@ -16,6 +16,9 @@ from src.fetch_data import Mongo_Data, Sql_Data
 from src.eventbased_notification import event_alerts
 from src.hourly_notification import hourly_alerts
 
+from console_logging.console import Console
+console=Console()
+
 shiftbased_smd = SharedMemoryDict(name='shiftbased', size=10000000)
 
 class shiftbased_alerts:
@@ -154,22 +157,26 @@ class shiftbased_alerts:
                     
             time.sleep(60)
             
-    def run_v2(mongo_collection, url):  
+    def run_v2(mongo_collection, url, logger):  
                     
         completed_np_inter={} # datewise key
         current_day_completed_end_times = {}
-        print("current_day_completed_end_times===",current_day_completed_end_times)
+        logger.info("current_day_completed_end_times==={current_day_completed_end_times}")
+        console.info("current_day_completed_end_times==={current_day_completed_end_times}")
         while True:
             nps = shiftbased_alerts.get_shift(shiftbased_smd)
             np_inter = shiftbased_alerts.get_shift_time(nps)
             current_time = time.time()
-            print("current_time==",current_time)
+            logger.info(f"current_time=={current_time}")
+            console.info(f"current_time=={current_time}")
             for each_end_time in np_inter:
-                print(f"for each_end_time: {each_end_time}")
+                logger.info(f"for each_end_time: {each_end_time}")
                 end_timestamp = (datetime.now().replace(hour=0,minute=0, second=0, microsecond=0)+timedelta(seconds=each_end_time)).timestamp()
-                print("condition",current_time, end_timestamp+300)
+                # print("condition in shift",current_time, end_timestamp+300)
+                logger.info(f"condition in shift {current_time} {end_timestamp+300}")
+                console.info(f"condition in shift {current_time} {end_timestamp+300}")
                 if current_time >= end_timestamp + 300:
-                    print("in here")
+                    logger.info("in shift based here")
                     date_key = datetime.now().date()#.strftime("%Y-%m-%d")
                     if date_key not in current_day_completed_end_times:
                         current_day_completed_end_times[date_key] = []
@@ -200,12 +207,17 @@ class shiftbased_alerts:
                                 # end_time =int(today_timestampdate+end_time)*1000
                                 start_time =int(str(int(today_timestampdate+start_time))+"000")
                                 end_time =int(str(int(today_timestampdate+end_time))+"000")
-                                print("start,end",start_time, end_time)
-                                    
+                                print("start,end ",start_time, end_time)
+                                logger.info(f"start: {start_time},end: {end_time}")
+                                console.info(f"start: {start_time},end: {end_time}")
+                                
                                 list_cur = Mongo_Data.get_shiftbaseddata(mongo_collection, camera_id, usecase_id, start_time, end_time)
-                                print(len(list_cur))
+                                console.info(len(list_cur))
+                                logger.info(len(list_cur))
                                     
-                                print("start_time, end_time ",start_time, end_time)
+                                # print("start_time, end_time ",start_time, end_time)
+                                logger.info(f"start_time, end_time {start_time}  {end_time}")
+                                console.info(f"start_time, end_time {start_time}  {end_time}")
                                 if len(list_cur)>0:
                                     dataframe_obj = create_dataframe()
                                     df_all = dataframe_obj.convert_mongo_to_db(list_cur) 
@@ -216,14 +228,21 @@ class shiftbased_alerts:
                                     # print(f" for notification id {not_id} d: {d}")
                                     res['total_count'] += d["total_count"][0]
                                     res['params'].append(d["params"][0])
-                            print(current_day_completed_end_times)
-                            print(f"each end time: {each_end_time} and notification_id : {not_id}")    
-                            print("res dict===", res)
+                            # print(current_day_completed_end_times)
+                            logger.info(f"current_day_completed_end_times: {current_day_completed_end_times}")
+                            console.info(f"current_day_completed_end_times: {current_day_completed_end_times}")
+                            logger.info(f"each end time: {each_end_time} and notification_id : {not_id}")    
+                            console.info(f"each end time: {each_end_time} and notification_id : {not_id}")    
+                            logger.info(f"res dict=== {res}")
+                            console.info(f"res dict=== {res}")
                             try:
                                 r = requests.post(url, json=json.dumps(res))
-                                print(f"Status Code: {r.status_code}, Response: {r.json()}")
+                                # print(f"Status Code: {r.status_code}, Response: {r.json()}")
+                                logger.info(f"Status Code: {r.status_code}, Response: {r.json()}")
+                                console.info(f"Status Code: {r.status_code}, Response: {r.json()}")
                             except Exception as e:
-                                print("exception raised ",e)
+                                logger.error(f"exception raised {e}")
+                                console.error(f"exception raised {e}")
                             # r = requests.post(url, json=json.dumps(res))
                             # print(f"Status Code: {r.status_code}, Response: {r.json()}")
                             

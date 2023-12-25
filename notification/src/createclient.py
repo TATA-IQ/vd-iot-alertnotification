@@ -2,6 +2,8 @@ from pymongo import MongoClient
 import mysql.connector
 from sqlalchemy import create_engine
 import urllib
+from console_logging.console import Console
+console=Console()
 
 class CreateClient():
     def __init__(self,dbconfig,mongoconfig):
@@ -49,7 +51,7 @@ class CreateClient():
 
         database = mongo_client[self.mongodbconf['database']]
         collection  = database[self.mongodbconf['collection']]
-        print("collection created")
+        print("mongo collection created")
 
         return collection
     
