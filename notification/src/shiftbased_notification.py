@@ -161,8 +161,8 @@ class shiftbased_alerts:
                     
         completed_np_inter={} # datewise key
         current_day_completed_end_times = {}
-        logger.info("current_day_completed_end_times==={current_day_completed_end_times}")
-        console.info("current_day_completed_end_times==={current_day_completed_end_times}")
+        logger.info(f"current_day_completed_end_times==={current_day_completed_end_times}")
+        console.info(f"current_day_completed_end_times==={current_day_completed_end_times}")
         while True:
             nps = shiftbased_alerts.get_shift(shiftbased_smd)
             np_inter = shiftbased_alerts.get_shift_time(nps)
@@ -208,8 +208,8 @@ class shiftbased_alerts:
                                 start_time =int(str(int(today_timestampdate+start_time))+"000")
                                 end_time =int(str(int(today_timestampdate+end_time))+"000")
                                 print("start,end ",start_time, end_time)
-                                logger.info(f"start: {start_time},end: {end_time}")
-                                console.info(f"start: {start_time},end: {end_time}")
+                                logger.info(f"start: {start_time}, end: {end_time}")
+                                console.info(f"start: {start_time}, end: {end_time}")
                                 
                                 list_cur = Mongo_Data.get_shiftbaseddata(mongo_collection, camera_id, usecase_id, start_time, end_time)
                                 console.info(len(list_cur))
@@ -235,14 +235,20 @@ class shiftbased_alerts:
                             console.info(f"each end time: {each_end_time} and notification_id : {not_id}")    
                             logger.info(f"res dict=== {res}")
                             console.info(f"res dict=== {res}")
-                            try:
-                                r = requests.post(url, json=json.dumps(res))
-                                # print(f"Status Code: {r.status_code}, Response: {r.json()}")
-                                logger.info(f"Status Code: {r.status_code}, Response: {r.json()}")
-                                console.info(f"Status Code: {r.status_code}, Response: {r.json()}")
-                            except Exception as e:
-                                logger.error(f"exception raised {e}")
-                                console.error(f"exception raised {e}")
+                            
+                            if res['total_count']>0:
+                                try:
+                                    print(f"url: {url}")
+                                    r = requests.post(url, json=json.dumps(res))
+                                    logger.info(f"Status Code: {r.status_code}, Response: {r.json()}")
+                                    console.info(f"Status Code: {r.status_code}, Response: {r.json()}")
+                                except Exception as e:
+                                    logger.error(f"exception raised {e}")
+                                    console.error(f"exception raised {e}")
+                            else:
+                                logger.info("totalcount is 0")
+                                console.info("totalcount is 0")
+                            
                             # r = requests.post(url, json=json.dumps(res))
                             # print(f"Status Code: {r.status_code}, Response: {r.json()}")
                             

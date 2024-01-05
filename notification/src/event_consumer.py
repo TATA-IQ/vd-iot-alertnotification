@@ -128,13 +128,19 @@ class NotificationConsumer():
 
                         self.logger.info(f"res=================>{res}")
                         console.info(f"res=================>{res}")
-                        try:
-                            r = requests.post(url, json=json.dumps(res))
-                            self.logger.info(f"Status Code: {r.status_code}, Response: {r.json()}")
-                            console.info(f"Status Code: {r.status_code}, Response: {r.json()}")
-                        except Exception as e:
-                            self.logger.error(f"exception raised in event consumer{e}")
-                            console.info(f"exception raised in event consumer{e}")
+                        
+                        if res['total_count']>0:
+                            try:
+                                r = requests.post(url, json=json.dumps(res))
+                                self.logger.info(f"Status Code: {r.status_code}, Response: {r.json()}")
+                                console.info(f"Status Code: {r.status_code}, Response: {r.json()}")
+                            except Exception as e:
+                                self.logger.error(f"exception raised in event consumer{e}")
+                                console.info(f"exception raised in event consumer{e}")
+                        else:
+                            self.logger.info("totalcount is 0")
+                            console.info("totalcount is 0")
+                        
                     # for np in event_smd[str(camera_id)][str(usecase_id)]:
                     #     event_alerts.create_notification(np, data, url)          
                 
