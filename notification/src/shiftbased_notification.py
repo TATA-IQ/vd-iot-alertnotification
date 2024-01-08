@@ -161,20 +161,20 @@ class shiftbased_alerts:
                     
         completed_np_inter={} # datewise key
         current_day_completed_end_times = {}
-        logger.info(f"current_day_completed_end_times==={current_day_completed_end_times}")
-        console.info(f"current_day_completed_end_times==={current_day_completed_end_times}")
+        logger.info(f"in shiftbased, current_day_completed_end_times==={current_day_completed_end_times}")
+        console.info(f"in shiftbased, current_day_completed_end_times==={current_day_completed_end_times}")
         while True:
             nps = shiftbased_alerts.get_shift(shiftbased_smd)
             np_inter = shiftbased_alerts.get_shift_time(nps)
             current_time = time.time()
-            logger.info(f"current_time=={current_time}")
-            console.info(f"current_time=={current_time}")
+            logger.info(f"in shiftbased, current_time=={current_time}")
+            console.info(f"in shiftbased, current_time=={current_time}")
             for each_end_time in np_inter:
-                logger.info(f"for each_end_time: {each_end_time}")
+                logger.info(f"in shiftbased, for each_end_time: {each_end_time}")
                 end_timestamp = (datetime.now().replace(hour=0,minute=0, second=0, microsecond=0)+timedelta(seconds=each_end_time)).timestamp()
                 # print("condition in shift",current_time, end_timestamp+300)
-                logger.info(f"condition in shift {current_time} {end_timestamp+300}")
-                console.info(f"condition in shift {current_time} {end_timestamp+300}")
+                logger.info(f"in shiftbased, condition in shift {current_time} {end_timestamp+300}")
+                console.info(f"in shiftbased, condition in shift {current_time} {end_timestamp+300}")
                 if current_time >= end_timestamp + 300:
                     logger.info("in shift based here")
                     date_key = datetime.now().date()#.strftime("%Y-%m-%d")
@@ -207,17 +207,17 @@ class shiftbased_alerts:
                                 # end_time =int(today_timestampdate+end_time)*1000
                                 start_time =int(str(int(today_timestampdate+start_time))+"000")
                                 end_time =int(str(int(today_timestampdate+end_time))+"000")
-                                print("start,end ",start_time, end_time)
-                                logger.info(f"start: {start_time}, end: {end_time}")
-                                console.info(f"start: {start_time}, end: {end_time}")
+                                print("in shiftbased,  start,end ",start_time, end_time)
+                                logger.info(f"in shiftbased, start: {start_time}, end: {end_time}")
+                                console.info(f"in shiftbased, start: {start_time}, end: {end_time}")
                                 
                                 list_cur = Mongo_Data.get_shiftbaseddata(mongo_collection, camera_id, usecase_id, start_time, end_time)
                                 console.info(len(list_cur))
                                 logger.info(len(list_cur))
                                     
                                 # print("start_time, end_time ",start_time, end_time)
-                                logger.info(f"start_time, end_time {start_time}  {end_time}")
-                                console.info(f"start_time, end_time {start_time}  {end_time}")
+                                logger.info(f"in shiftbased, start_time, end_time {start_time}  {end_time}")
+                                console.info(f"in shiftbased, start_time, end_time {start_time}  {end_time}")
                                 if len(list_cur)>0:
                                     dataframe_obj = create_dataframe()
                                     df_all = dataframe_obj.convert_mongo_to_db(list_cur) 
@@ -229,25 +229,26 @@ class shiftbased_alerts:
                                     res['total_count'] += d["total_count"][0]
                                     res['params'].append(d["params"][0])
                             # print(current_day_completed_end_times)
-                            logger.info(f"current_day_completed_end_times: {current_day_completed_end_times}")
-                            console.info(f"current_day_completed_end_times: {current_day_completed_end_times}")
-                            logger.info(f"each end time: {each_end_time} and notification_id : {not_id}")    
-                            console.info(f"each end time: {each_end_time} and notification_id : {not_id}")    
-                            logger.info(f"res dict=== {res}")
-                            console.info(f"res dict=== {res}")
-                            
+                            logger.info(f"in shiftbased, current_day_completed_end_times: {current_day_completed_end_times}")
+                            console.info(f"in shiftbased, current_day_completed_end_times: {current_day_completed_end_times}")
+                            logger.info(f"in shiftbased, each end time: {each_end_time} and notification_id : {not_id}")    
+                            console.info(f"in shiftbased, each end time: {each_end_time} and notification_id : {not_id}")    
+                            logger.info(f"in shiftbased,  res dict=== {res}")
+                            console.info(f"in shiftbased,  res dict=== {res}")                            
                             if res['total_count']>0:
                                 try:
-                                    print(f"url: {url}")
-                                    r = requests.post(url, json=json.dumps(res))
-                                    logger.info(f"Status Code: {r.status_code}, Response: {r.json()}")
-                                    console.info(f"Status Code: {r.status_code}, Response: {r.json()}")
+                                    url = url['postnotificationalerts']
+                                    console.info(f"url in shiftbased:- {url}")
+                                    r = requests.request("POST", url, data=json.dumps(res), headers={'Content-Type': 'application/json'})
+                                    logger.info(f"in shiftbased, Status Code: {r.text}, Response: {r.text}")
+                                    console.info(f"in shiftbased, Status Code: {r.text}, Response: {r.text}")
+                                    # r = requests.post(url, json=json.dumps(res))
                                 except Exception as e:
-                                    logger.error(f"exception raised {e}")
-                                    console.error(f"exception raised {e}")
+                                    logger.error(f"in shiftbased, exception raised {e}")
+                                    console.error(f"in shiftbased, exception raised {e}")
                             else:
-                                logger.info("totalcount is 0")
-                                console.info("totalcount is 0")
+                                logger.info("in shiftbased, totalcount is 0")
+                                console.info("in shiftbased, totalcount is 0")
                             
                             # r = requests.post(url, json=json.dumps(res))
                             # print(f"Status Code: {r.status_code}, Response: {r.json()}")
