@@ -26,8 +26,8 @@ class NotificationConsumer():
         self.kill=False
         self.kafkahost=kafkashost
         self.logger = logger
-        self.logger.info("*******kafkahost*****{self.kafkahost}")
-        console.info("*******kafkahost*****{self.kafkahost}")
+        self.logger.info(f"*******kafkahost*****{self.kafkahost}")
+        console.info(f"*******kafkahost*****{self.kafkahost}")
         self.consumer=None
         # self.log=logger
         self.check=False
@@ -61,6 +61,7 @@ class NotificationConsumer():
         try:
             msg=json.loads(msg.value)
         except Exception as e:
+            console.info(f"message {msg}, exp {e}")
             self.logger.info(f"message {msg}, exp {e}")
         # print(msg)
             
@@ -94,6 +95,7 @@ class NotificationConsumer():
             data = self.messageParser(message)
             camera_id = data['hierarchy']['camera_id']
             usecase_id = data['usecase']['usecase_id']
+            console.info(f"camera_id: {camera_id} and usecase__id: {usecase_id}")
             self.logger.info(f"camera_id: {camera_id} and usecase__id: {usecase_id}")
             # print("*"*100)
             # # print(event_smd)
@@ -126,23 +128,33 @@ class NotificationConsumer():
                             res['total_count'] += d["total_count"][0]
                             res['params'].append(d["params"][0])
 
-                        self.logger.info(f"res=================>{res}")
-                        console.info(f"res=================>{res}")
-                        try:
-                            r = requests.post(url, json=json.dumps(res))
-                            self.logger.info(f"Status Code: {r.status_code}, Response: {r.json()}")
-                            console.info(f"Status Code: {r.status_code}, Response: {r.json()}")
-                        except Exception as e:
-                            self.logger.error(f"exception raised in event consumer{e}")
-                            console.info(f"exception raised in event consumer{e}")
+                        self.logger.info(f"in event consumer res========>{res}")
+                        console.info(f"in event consumer res=================>{res}")
+                        
+                        if res['total_count']>0:
+                            try:
+                                # r = requests.post(url, json=json.dumps(res))
+                                url = url['postnotificationalerts']
+                                console.info(f"in event consumer url:- {url}")
+                                self.logger.info(f"in event consumer url:- {url}")
+                                r = requests.request("POST", url, data=json.dumps(res), headers={'Content-Type': 'application/json'})
+                                self.logger.info(f"Status Code: {r.text}, Response: {r.text}")
+                                console.info(f"Status Code: {r.text}, Response: {r.text}")
+                            except Exception as e:
+                                self.logger.error(f"exception raised in event consumer: {e}")
+                                console.info(f"exception raised in event consumer: {e}")
+                        else:
+                            self.logger.info("in event consumer, totalcount is 0")
+                            console.info("in event consumer, totalcount is 0")
+                        
                     # for np in event_smd[str(camera_id)][str(usecase_id)]:
                     #     event_alerts.create_notification(np, data, url)          
                 
-            except:
+            except Exception as ex:
                 boolevent=False
                 print(f"couldn't find event for camera_id: {camera_id} and usecase_id: {usecase_id}")
-                self.logger.error(f"couldn't find event for camera_id: {camera_id} and usecase_id: {usecase_id}")
-                console.error(f"couldn't find event for camera_id: {camera_id} and usecase_id: {usecase_id}")
+                self.logger.error(f"in event_Consumer, couldn't find event for camera_id: {camera_id} and usecase_id: {usecase_id} with exception:{ex}")
+                console.error(f"in event_Consumer, couldn't find event for camera_id: {camera_id} and usecase_id: {usecase_id} with exception:{ex}")
                 
             
             

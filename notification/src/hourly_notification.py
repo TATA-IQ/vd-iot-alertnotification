@@ -150,9 +150,9 @@ class hourly_alerts:
                 #     latest_end_time =  datetime.now().replace(minute=0, second=0)
                 latest_start_time = start_time.replace(microsecond=0)
                 latest_end_time = end_time.replace(microsecond=0)
-                self.logger.info(f"===###==={latest_start_time}, {latest_end_time}")  
-                console.info(f"===###==={latest_start_time}, {latest_end_time}")  
-                self.logger.info(f"diff {(latest_end_time-latest_start_time).total_seconds()}")
+                self.logger.info(f"===# in hourly not##==={latest_start_time}, {latest_end_time}")  
+                console.info(f"===##in hourly not#==={latest_start_time}, {latest_end_time}")  
+                self.logger.info(f"diff in hourly not {(latest_end_time-latest_start_time).total_seconds()}")
                 console.info(f"diff {(latest_end_time-latest_start_time).total_seconds()}")
                 print(f"diff {(latest_end_time-latest_start_time).total_seconds()}")
                 print("diff", (latest_end_time-latest_start_time).total_seconds())
@@ -167,8 +167,8 @@ class hourly_alerts:
                     self.logger.info(len(list_cur))
                         
                     print("latest_start_time_str, latest_end_time_str ",latest_start_time_str, latest_end_time_str)
-                    self.logger.info(f"latest_start_time_str: {latest_start_time_str}, latest_end_time_str: {latest_end_time_str}" )
-                    console.info(f"latest_start_time_str: {latest_start_time_str}, latest_end_time_str: {latest_end_time_str}" )
+                    self.logger.info(f"latest_start_time_str: {latest_start_time_str}, latest_end_time_str: {latest_end_time_str} in hourly not" )
+                    console.info(f"latest_start_time_str: {latest_start_time_str}, latest_end_time_str: {latest_end_time_str} in hourly not" )
                     if len(list_cur)>0:
                         dataframe_obj = create_dataframe()
                         df_all = dataframe_obj.convert_mongo_to_db(list_cur) 
@@ -182,19 +182,23 @@ class hourly_alerts:
                         res['total_count'] += d["total_count"][0]
                         res['params'].append(d["params"][0])
             
-            self.logger.info(f"res dict==={res}" )
-            console(f"res dict==={res}" )
+            self.logger.info(f"in hourly,  res dict==={res}" )
+            console.info(f"in hourly, res dict==={res}" )
+            print("res[totatlcount]",res['total_count'])
             if res['total_count']>0:
                 try:
-                    r = requests.post(url, json=json.dumps(res))
-                    self.logger.info(f"Status Code: {r.status_code}, Response: {r.json()}")
-                    console.info(f"Status Code: {r.status_code}, Response: {r.json()}")
+                    # r = requests.post(url, json=json.dumps(res))
+                    url = url['postnotificationalerts']
+                    console.info(f"url:- {url}")
+                    r = requests.request("POST", url, data=json.dumps(res), headers={'Content-Type': 'application/json'})
+                    self.logger.info(f"Status Code: {r.text}, Response: {r.text}")
+                    console.info(f"Status Code: {r.text}, Response: {r.text}")
                 except Exception as e:
-                    self.logger.error(f"exception raised {e}")
-                    console.error(f"exception raised {e}")
+                    self.logger.error(f"exception raised  in hourly not, {e}")
+                    console.error(f"exception raised in hourly not, {e}")
             else:
-                self.logger.info("totalcount is 0")
-                console.info("totalcount is 0")
+                self.logger.info("in hourly, totalcount is 0")
+                console.info("in hourly, totalcount is 0")
             # r = requests.post(url, json=json.dumps(res))
             # print(f"Status Code: {r.status_code}, Response: {r.json()}")
                     
